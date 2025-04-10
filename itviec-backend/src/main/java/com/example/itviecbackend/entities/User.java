@@ -3,6 +3,7 @@ package com.example.itviecbackend.entities;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
@@ -13,27 +14,45 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = "roles")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")  // Explicit column name
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "username", unique = true, nullable = false, length = 50)
     private String username;
 
-    @Column(nullable = false)
+    @Column(name = "password", nullable = false, length = 100)
     private String password;
 
+    @Column(name = "firstname", length = 50)
     private String firstname;
+
+    @Column(name = "lastname", length = 50)
     private String lastname;
+
+    @Column(name = "gender", length = 10)
     private String gender;
+
+    @Column(name = "email", length = 100)
     private String email;
+
+    @Column(name = "phone", length = 20)
     private String phone;
+
+    @Column(name = "address", length = 255)
     private String address;
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles",
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
     private Set<Role> roles = new HashSet<>();
+
+    @Column(name = "active")
     private boolean active = true;
 }

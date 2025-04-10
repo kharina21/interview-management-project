@@ -18,44 +18,55 @@ public class Job {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "job_id")
     private Long id;
 
+    @Column(name = "title", nullable = false, length = 255)
     private String title;
-    private String department;        // Phòng ban
-    private String location;          // dia diem lam viec
-    private String description;       // mo ta
-    private String requirements;      // yeu cau
+
+    @Column(name = "department", length = 100)
+    private String department;
+
+    @Column(name = "location", length = 100)
+    private String location;
+
+    @Column(name = "description", columnDefinition = "TEXT") // Use TEXT
+    private String description;
+
+    @Column(name = "requirements", columnDefinition = "TEXT") // Use TEXT
+    private String requirements;
+
+    @Column(name = "salary", length = 50)
     private String salary;
 
+    @Column(name = "posted_date")
     private LocalDate postedDate;
+
+    @Column(name = "closing_date")
     private LocalDate closingDate;
 
-    //Người tạo bài đăng
     @ManyToOne
-    @JoinColumn(name = "recruiter_id")
+    @JoinColumn(name = "recruiter_id", nullable = false)
     private User recruiter;
 
-    //Công ty đăng tuyển
     @ManyToOne
-    @JoinColumn(name = "company_id")
+    @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 
-    //Người duyệt bài viết
     @ManyToOne
     @JoinColumn(name = "approved_by")
     private User approver;
 
-    //Thời gian duyệt
+    @Column(name = "approved_at")
     private LocalDateTime approvedAt;
 
-    //Trạng thái bài viết
     @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 20)
     private JobStatus status = JobStatus.PENDING;
 
-    //Lý do từ chối nếu có
+    @Column(name = "rejection_reason", columnDefinition = "TEXT")
     private String rejectionReason;
 
-    //cac skill can cho job
-    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "job", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
     private List<JobSkill> jobSkills;
 }

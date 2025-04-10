@@ -4,15 +4,25 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+
+import java.util.Set;
 
 @Entity
 @Table(name = "roles")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = "users") //tranh viec bi loop vo han
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "role_id")
     private Long id;
-    private String name; // ADMIN, RECRUITER, INTERVIEWER, MANAGER
+
+    @Column(name = "name", length = 50)
+    private String name;
+
+    @ManyToMany(mappedBy = "roles")
+    private Set<User> users;
 }

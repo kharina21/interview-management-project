@@ -15,13 +15,17 @@ import java.time.LocalDateTime;
 public class Bookmark {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "bookmark_id")
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne
+    @JoinColumn(name = "job_id", nullable = false)
     private Job job;
 
+    @Column(name = "saved_at")
     private LocalDateTime savedAt;
 }

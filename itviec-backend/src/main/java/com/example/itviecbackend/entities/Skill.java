@@ -13,7 +13,9 @@ import lombok.NoArgsConstructor;
 public class Skill {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "skill_id")
     private Long id;
 
+    @Column(name = "name", length = 100)
     private String name;
 }
