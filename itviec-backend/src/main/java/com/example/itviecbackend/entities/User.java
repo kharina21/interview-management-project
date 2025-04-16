@@ -45,6 +45,9 @@ public class User {
     @Column(name = "address", length = 255)
     private String address;
 
+    @Column(name = "auth_token", length = 255)
+    private String authToken;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_roles",

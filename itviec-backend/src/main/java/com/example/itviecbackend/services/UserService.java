@@ -4,6 +4,7 @@ import com.example.itviecbackend.dtos.UserDto;
 import com.example.itviecbackend.entities.Role;
 import com.example.itviecbackend.entities.User;
 import com.example.itviecbackend.repository.UserRepository;
+import com.example.itviecbackend.utils.PasswordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -31,6 +32,8 @@ public class UserService {
     }
 
     public UserDto createUser(User user) {
+        // Hash the password before saving
+        user.setPassword(PasswordUtils.hashPassword(user.getPassword()));
         User savedUser = userRepository.save(user);
         return convertToDto(savedUser);
     }
@@ -39,17 +42,20 @@ public class UserService {
         Optional<User> user = userRepository.findById(id);
         if (user.isPresent()) {
             User existingUser = user.get();
-            // Cập nhật các trường cần thiết từ userDetails
             existingUser.setUsername(userDetails.getUsername());
             existingUser.setFirstname(userDetails.getFirstname());
             existingUser.setLastname(userDetails.getLastname());
             existingUser.setEmail(userDetails.getEmail());
-            // ...
+            
+            // Only update password if it's provided
+            if (userDetails.getPassword() != null && !userDetails.getPassword().isEmpty()) {
+                existingUser.setPassword(PasswordUtils.hashPassword(userDetails.getPassword()));
+            }
+            
             User updatedUser = userRepository.save(existingUser);
             return convertToDto(updatedUser);
-        } else {
-            return null; // Hoặc throw exception
         }
+        return null;
     }
 
     public void deleteUser(Long id) {
@@ -60,7 +66,31 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    private UserDto convertToDto(User user) {
+    public boolean verifyPassword(String username, String password) {
+        Optional<User> user = userRepository.findByUsername(username);
+        return user.isPresent() && PasswordUtils.verifyPassword(password, user.get().getPassword());
+    }
+
+    public void storeAuthToken(Long userId, String token) {
+        userRepository.findById(userId).ifPresent(user -> {
+            user.setAuthToken(token);
+            userRepository.save(user);
+        });
+    }
+
+    public Optional<User> findByAuthToken(String token) {
+        return userRepository.findByAuthToken(token);
+    }
+
+    public void clearAuthToken(String token) {
+        userRepository.findByAuthToken(token)
+            .ifPresent(user -> {
+                user.setAuthToken(null);
+                userRepository.save(user);
+            });
+    }
+
+    public UserDto convertToDto(User user) {
         UserDto dto = new UserDto();
         dto.setId(user.getId());
         dto.setUsername(user.getUsername());
