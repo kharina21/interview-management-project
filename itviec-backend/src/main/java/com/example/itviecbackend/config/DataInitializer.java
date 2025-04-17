@@ -5,7 +5,6 @@ import com.example.itviecbackend.entities.User;
 import com.example.itviecbackend.repository.RoleRepository;
 import com.example.itviecbackend.repository.UserRepository;
 import com.example.itviecbackend.utils.PasswordUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,7 +42,7 @@ public class DataInitializer {
             admin.setPassword(PasswordUtils.hashPassword("admin123"));
             admin.setFirstname("Admin");
             admin.setLastname("User");
-            admin.setEmail("admin@example.com");
+            admin.setEmail("khanh0vn1234@gmail.com");
             admin.setRoles(adminRoles);
             userRepository.save(admin);
 

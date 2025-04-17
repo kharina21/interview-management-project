@@ -1,8 +1,8 @@
 // Logout.jsx
-import React, { useState } from 'react';
-import { Link as MuiLink, Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { ExitToApp as ExitToAppIcon } from '@mui/icons-material';
+import React, {useState} from 'react';
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography} from '@mui/material';
+import {useNavigate} from 'react-router-dom';
+import {ExitToApp as ExitToAppIcon} from '@mui/icons-material';
 import axios from 'axios';
 
 // Configure axios defaults

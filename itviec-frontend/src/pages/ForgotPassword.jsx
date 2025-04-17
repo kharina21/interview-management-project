@@ -1,13 +1,8 @@
-import React, { useState } from 'react';
-import {
-  Box,
-  Button,
-  TextField,
-  Typography,
-  Alert,
-  Stack,
-} from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import React, {useState} from 'react';
+import {Alert, Box, Button, Stack, TextField, Typography,} from '@mui/material';
+import {useNavigate} from 'react-router-dom';
+import axios from 'axios';
+
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -23,7 +18,7 @@ export default function ForgotPassword() {
   };
 
   const handleApiResponse = (response) => {
-    if (response.ok) {
+    if (response.status === 200) {
       setStatus({
         type: 'success',
         message: "We've sent an email with the link to reset your password.",
@@ -33,11 +28,6 @@ export default function ForgotPassword() {
         type: 'error',
         message: "The email address doesn't exist. Please try again.",
       });
-    } else {
-      setStatus({
-        type: 'error',
-        message: 'An unexpected error occurred. Please try again later.',
-      });
     }
   };
 
@@ -45,10 +35,8 @@ export default function ForgotPassword() {
     if (!validateEmail()) return;
 
     try {
-      const response = await fetch('/api/forgot-password', {
-        method: 'POST',
+      const response = await axios.post('/api/forgot-password', { email }, {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
       });
       handleApiResponse(response);
     } catch (error) {

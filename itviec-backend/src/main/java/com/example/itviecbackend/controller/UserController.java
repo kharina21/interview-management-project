@@ -1,8 +1,8 @@
 package com.example.itviecbackend.controller;
 
+import com.example.itviecbackend.dtos.UserDto;
 import com.example.itviecbackend.entities.User;
 import com.example.itviecbackend.services.UserService;
-import com.example.itviecbackend.dtos.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

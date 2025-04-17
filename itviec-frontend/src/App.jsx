@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {BrowserRouter as Router, Navigate, Route, Routes, useLocation} from 'react-router-dom';
 import Login from './pages/Login';
 import Test from './pages/Test';
 import ForgotPassword from './pages/ForgotPassword';
 import Logout from './components/Logout';
 import axios from 'axios';
+import ResetPassword from "./pages/ResetPassword.jsx";
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
@@ -46,7 +47,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/logout" element={<Logout />} />
-        <Route 
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route
           path="/test" 
           element={
             <ProtectedRoute>

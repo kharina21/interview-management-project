@@ -5,19 +5,33 @@ import com.example.itviecbackend.entities.Role;
 import com.example.itviecbackend.entities.User;
 import com.example.itviecbackend.repository.UserRepository;
 import com.example.itviecbackend.utils.PasswordUtils;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
-public class UserService {
+public class  UserService {
+    @Value("${app.reset-password-link}")
+    private String resetPasswordLinkBaseUrl;
+
     private final UserRepository userRepository;
+    private final JavaMailSender mailSender;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, JavaMailSender mailSender) {
         this.userRepository = userRepository;
+        this.mailSender = mailSender;
     }
 
     public List<UserDto> getAllUsers() {
@@ -32,7 +46,6 @@ public class UserService {
     }
 
     public UserDto createUser(User user) {
-        // Hash the password before saving
         user.setPassword(PasswordUtils.hashPassword(user.getPassword()));
         User savedUser = userRepository.save(user);
         return convertToDto(savedUser);
@@ -46,12 +59,11 @@ public class UserService {
             existingUser.setFirstname(userDetails.getFirstname());
             existingUser.setLastname(userDetails.getLastname());
             existingUser.setEmail(userDetails.getEmail());
-            
-            // Only update password if it's provided
+
             if (userDetails.getPassword() != null && !userDetails.getPassword().isEmpty()) {
                 existingUser.setPassword(PasswordUtils.hashPassword(userDetails.getPassword()));
             }
-            
+
             User updatedUser = userRepository.save(existingUser);
             return convertToDto(updatedUser);
         }
@@ -84,10 +96,10 @@ public class UserService {
 
     public void clearAuthToken(String token) {
         userRepository.findByAuthToken(token)
-            .ifPresent(user -> {
-                user.setAuthToken(null);
-                userRepository.save(user);
-            });
+                .ifPresent(user -> {
+                    user.setAuthToken(null);
+                    userRepository.save(user);
+                });
     }
 
     public UserDto convertToDto(User user) {
@@ -101,5 +113,64 @@ public class UserService {
                 .map(Role::getName)
                 .collect(Collectors.toSet()));
         return dto;
+    }
+
+    public boolean checkIfEmailExists(String email) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+        if (!Pattern.matches(emailRegex, email)) {
+            return false;
+        }
+        return userRepository.findByEmailAndActive(email, true).isPresent();
+    }
+
+    public void sendResetPasswordLink(String email) {
+        Optional<User> userOptional = userRepository.findByEmailAndActive(email, true);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            String token = UUID.randomUUID().toString();
+            user.setResetPasswordToken(token);
+            user.setResetPasswordTokenExpiry(LocalDateTime.now().plusHours(24));
+            userRepository.save(user);
+
+            String resetLink = resetPasswordLinkBaseUrl + "?token=" + token;
+            sendEmail(email, "Reset Your Password", "Click the link to reset your password: " + resetLink);
+        }
+    }
+
+    public boolean validateResetPasswordLink(String token) {
+        return userRepository.findByResetPasswordToken(token)
+                .map(user -> user.getResetPasswordTokenExpiry().isAfter(LocalDateTime.now()))
+                .orElse(false);
+    }
+
+    public void resetPassword(String token, String newPassword) {
+        Optional<User> userOptional = userRepository.findByResetPasswordToken(token);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            if (user.getResetPasswordTokenExpiry().isAfter(LocalDateTime.now())) {
+                user.setPassword(PasswordUtils.hashPassword(newPassword));
+                user.setResetPasswordToken(null);
+                user.setResetPasswordTokenExpiry(null);
+                user.setAuthToken(null); // Clear auth token if needed
+                userRepository.save(user);
+            } else {
+                throw new IllegalArgumentException("Reset password token has expired.");
+            }
+        } else {
+            throw new IllegalArgumentException("Invalid reset password token.");
+        }
+    }
+
+    private void sendEmail(String to, String subject, String content) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(content, true);
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Failed to send email", e);
+        }
     }
 }

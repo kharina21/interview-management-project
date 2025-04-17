@@ -1,18 +1,8 @@
 // Login.jsx
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {useNavigate} from 'react-router-dom';
 import axios from 'axios';
-import {
-  Box,
-  Button,
-  Checkbox,
-  FormControlLabel,
-  TextField,
-  Typography,
-  Link,
-  Alert,
-  Stack
-} from '@mui/material';
+import {Alert, Box, Button, Checkbox, FormControlLabel, Link, Stack, TextField, Typography} from '@mui/material';
 
 // Configure axios defaults
 axios.defaults.withCredentials = true;

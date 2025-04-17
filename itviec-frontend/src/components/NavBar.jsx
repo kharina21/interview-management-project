@@ -1,30 +1,29 @@
 // Navbar.jsx
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import {Link, useLocation} from 'react-router-dom';
 
 import {
   AppBar,
-  Toolbar,
-  Typography,
   Box,
-  IconButton,
   Button,
   Drawer,
+  IconButton,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
+  Toolbar,
+  Typography,
 } from '@mui/material';
 
 import {
-  Menu as MenuIcon,
   AccountCircle as AccountCircleIcon,
-  ExitToApp as ExitToAppIcon,
+  Assignment as AssignmentIcon,
+  CalendarToday as CalendarTodayIcon,
   Home as HomeIcon,
+  Menu as MenuIcon,
   People as PeopleIcon,
   Work as WorkIcon,
-  CalendarToday as CalendarTodayIcon,
-  Assignment as AssignmentIcon,
 } from '@mui/icons-material';
 
 import Logout from './Logout';
